@@ -33,6 +33,8 @@ import inspect
 
 from collections import defaultdict
 
+import saliency
+
 FILTER_RULES = False
 RUN_ON_SERVER = False
 DISPLAY_FIGURES = (not RUN_ON_SERVER)
@@ -397,6 +399,7 @@ def nonDiagonalAgents(ourAgentId):
     return list
 
 def generate_NN_input(my_game_id ,observation, time_step, game_tracker):
+    print()
     print(observation)
 
     numberOfChannels = 28
@@ -749,7 +752,8 @@ class Worker(mp.Process):
             while True:
                 if self.name == 'w0' and RUN_ON_SERVER is False:  # TODO not displaying now
                     self.env.render()
-                    # self.env.render(mode=False, record_json_dir="out")
+                    self.env.render(mode=False, record_json_dir="out")
+                    saliency.generate_saliency(s[0], self.lnet, self.expert_searcher.game_tracker, "out", False)
                     pass
 
                 self.expert_searcher.keep_tracking_game(s[0])
