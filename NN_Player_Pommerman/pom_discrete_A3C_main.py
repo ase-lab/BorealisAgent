@@ -59,7 +59,7 @@ GAMMA = 0.999
 IMITATION_LEARNING_DECAY = 0.9999
 
 
-MAX_EP = 3 # how many games
+MAX_EP = 1 # how many games
 CPU_COUNT = 1
 PURE_LEARNING = 1 # 50 % OF THE EPISODES WILL BE IMITATION-FREE
 
@@ -758,9 +758,7 @@ class Worker(mp.Process):
                 self.expert_searcher.keep_tracking_game(s[0])
 
                 if self.name == 'w0' and RUN_ON_SERVER is False:  # TODO not displaying now
-                    self.env.render()
-                    self.env.render(mode=False, record_json_dir=record_json_dir)
-                    saliency.generate_saliency(s[0], self.lnet, self.expert_searcher.game_tracker, record_json_dir, False)
+                    # self.env.render()
                     pass
 
 
@@ -776,6 +774,8 @@ class Worker(mp.Process):
                 FLAG_FOR_NATHAN = True
 
                 if FLAG_FOR_NATHAN:
+                    self.env.render(mode=False, record_json_dir=record_json_dir)
+                    saliency.generate_saliency(s[0], game_step, self.lnet, self.expert_searcher.game_tracker, record_json_dir, nn_action, NN_probs, False)
                     print(f'taking action {nn_action} propbs were {NN_probs}')
 
                 #TODO Note for Nathan

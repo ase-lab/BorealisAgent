@@ -5,19 +5,22 @@ from pom_discrete_A3C_main import generate_NN_input
 from utils import v_wrap
 from torch import unsqueeze
 
-def generate_saliency(observation, net, game_tracker, record_json_dir, new_val=True):
+def generate_saliency(observation, game_step, net, game_tracker, record_json_dir, actual_action, actual_probs, new_val=True):
 
-    actual_state = generate_NN_input(10, observation, observation['step_count'], game_tracker)
-    m_actual_state = v_wrap(actual_state).unsqueeze(0)
-    #get the unmodified result from the network to compare modifications against.
-    #Don't need hx or cx (still don't know wwhat they do)
-    #Don't need the buffers as only this steps value is important.
-    actual_action, _, _, actual_probs, actual_terminal_predicton = net.choose_action(m_actual_state)
+    # actual_state = generate_NN_input(10, observation, observation['step_count'], game_tracker)
+    # m_actual_state = v_wrap(actual_state).unsqueeze(0)
+    # #get the unmodified result from the network to compare modifications against.
+    # #Don't need hx or cx (still don't know wwhat they do)
+    # #Don't need the buffers as only this steps value is important.
+    # predicted_action, _, _, actual_probs, actual_terminal_predicton = net.choose_action(m_actual_state)
+
+    print(f"step {game_step}")
 
     data = {}
-    data['step'] = observation['step_count']
+    data['step'] = game_step
+    data['actual_action'] = actual_action #have to pass actual action in from outside the func because the agent selects an action from the prob distribution in the main code
     data['actual_probs'] = actual_probs
-    data['actual_action'] = actual_action
+    # data['predicted_action'] = predicted_action
     # data['actual_terminal_prediction'] = actual_terminal_predicton
     data['mods'] = []
     data['actions'] = []
@@ -47,7 +50,7 @@ def generate_saliency(observation, net, game_tracker, record_json_dir, new_val=T
             mod_observation['bomb_blast_strength'][i][j] = 0
             mod_observation['bomb_life'][i][j] = 0
 
-            this_state = generate_NN_input(10, mod_observation, mod_observation['step_count'], game_tracker)
+            this_state = generate_NN_input(10, mod_observation, game_step, game_tracker)
             m_this_state = v_wrap(this_state).unsqueeze(0)
             this_action, _, _, this_probs, this_terminal_prediction = net.choose_action(m_this_state)
 
@@ -61,7 +64,7 @@ def generate_saliency(observation, net, game_tracker, record_json_dir, new_val=T
         data['actions'].append(deepcopy(action_list))
         # data['predictions'].append(deepcopy(prediction_list))
 
-    with open(f"{record_json_dir}/d{observation['step_count']:03d}.json", 'w') as f:
+    with open(f"{record_json_dir}/d{game_step:03d}.json", 'w') as f:
         #Uses MyEncoder to properly clean numpy data to types which json will serialize.
         #json.dumps won't serialize numpy data by default
         f.write(json.dumps(data, cls=MyEncoder))
