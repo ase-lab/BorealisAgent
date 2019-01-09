@@ -176,3 +176,8 @@ local
 ####################
 a/static/js/build/*
 a/static/css/*
+
+
+# BOREALIS SPECIFIC
+out/
+NN_Player_Pommerman/results/

@@ -34,6 +34,7 @@ import inspect
 from collections import defaultdict
 
 import saliency
+import time
 
 FILTER_RULES = False
 RUN_ON_SERVER = False
@@ -399,8 +400,8 @@ def nonDiagonalAgents(ourAgentId):
     return list
 
 def generate_NN_input(my_game_id ,observation, time_step, game_tracker):
-    print()
-    print(observation)
+    # print()
+    # print(observation)
 
     numberOfChannels = 28
     current_board = np.array(observation['board'])  # done
@@ -748,15 +749,20 @@ class Worker(mp.Process):
                     self.imitation_continue = False
                     self.g_imitation_p.value = 0
                 ###
+            record_json_dir=f"out/{time.time()}"
+            if not os.path.exists(record_json_dir):
+                os.makedirs(record_json_dir)
 
             while True:
-                if self.name == 'w0' and RUN_ON_SERVER is False:  # TODO not displaying now
-                    self.env.render()
-                    self.env.render(mode=False, record_json_dir="out")
-                    saliency.generate_saliency(s[0], self.lnet, self.expert_searcher.game_tracker, "out", False)
-                    pass
 
                 self.expert_searcher.keep_tracking_game(s[0])
+
+                if self.name == 'w0' and RUN_ON_SERVER is False:  # TODO not displaying now
+                    self.env.render()
+                    self.env.render(mode=False, record_json_dir=record_json_dir)
+                    saliency.generate_saliency(s[0], self.lnet, self.expert_searcher.game_tracker, record_json_dir, False)
+                    pass
+
 
                 actions = self.env.act(s)
                 filtered_state = generate_NN_input(10, s[0], game_step, self.expert_searcher.game_tracker)
