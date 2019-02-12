@@ -775,8 +775,8 @@ class Worker(mp.Process):
 
                 if FLAG_FOR_NATHAN:
                     self.env.render(mode=False, record_json_dir=record_json_dir)
-                    saliency.generate_saliency(s[0], game_step, self.lnet, self.expert_searcher.game_tracker, record_json_dir, nn_action, NN_probs, False)
-                    print(f'taking action {nn_action} propbs were {NN_probs}')
+                    saliency.generate_saliency(s[0], game_step, self.lnet, self.expert_searcher.game_tracker, record_json_dir, nn_action, NN_probs, actions[1], True)
+                    #print(f'taking action {nn_action} propbs were {NN_probs}')
 
                 #TODO Note for Nathan
                 #Original state the agent gets from Pommerman API is s[0]

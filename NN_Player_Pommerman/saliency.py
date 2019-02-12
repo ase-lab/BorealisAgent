@@ -5,7 +5,7 @@ from pom_discrete_A3C_main import generate_NN_input
 from utils import v_wrap
 from torch import unsqueeze
 
-def generate_saliency(observation, game_step, net, game_tracker, record_json_dir, actual_action, actual_probs, new_val=True):
+def generate_saliency(observation, game_step, net, game_tracker, record_json_dir, actual_action, actual_probs, opponent_action, new_val=True):
 
     # actual_state = generate_NN_input(10, observation, observation['step_count'], game_tracker)
     # m_actual_state = v_wrap(actual_state).unsqueeze(0)
@@ -24,6 +24,7 @@ def generate_saliency(observation, game_step, net, game_tracker, record_json_dir
     # data['actual_terminal_prediction'] = actual_terminal_predicton
     data['mods'] = []
     data['actions'] = []
+    data['opponent_action'] = opponent_action
     # data['predictions'] = []
 
     board_size = len(observation['board'][0]) #assuming board is square
