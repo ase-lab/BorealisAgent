@@ -6,26 +6,30 @@ from utils import v_wrap
 from torch import unsqueeze
 
 def generate_saliency(observation, game_step, net, game_tracker, record_json_dir, actual_action, actual_probs, opponent_action, new_val=True):
+    """Generate saliency data for a given observation
 
-    # actual_state = generate_NN_input(10, observation, observation['step_count'], game_tracker)
-    # m_actual_state = v_wrap(actual_state).unsqueeze(0)
-    # #get the unmodified result from the network to compare modifications against.
-    # #Don't need hx or cx (still don't know wwhat they do)
-    # #Don't need the buffers as only this steps value is important.
-    # predicted_action, _, _, actual_probs, actual_terminal_predicton = net.choose_action(m_actual_state)
-
-    print(f"step {game_step}")
+    observation     -- the observation to be used
+    game_step       -- the current timestep of the game, needed because of an off-by-one in the observation's counter
+    net             -- the network to generate saliency from
+    game_tracker    -- Needed for generate_NN_input
+    record_json_dir -- output directory for saliency data files. Should be kept with the data from env.render
+    actual_action   -- action decided from actor distribution by the unmodified observation
+    actual_probs    -- action distribution produced by the unmodified observation
+    opponent_action -- the action the opponent took at this time step
+    new_val         -- if false uses passage/wall modifications, otherwise uses previously unknown value modifications
+    """
 
     data = {}
     data['step'] = game_step
     data['actual_action'] = actual_action #have to pass actual action in from outside the func because the agent selects an action from the prob distribution in the main code
     data['actual_probs'] = actual_probs
-    # data['predicted_action'] = predicted_action
-    # data['actual_terminal_prediction'] = actual_terminal_predicton
+    # data['actual_terminal_prediction'] = actual_terminal_predicton #ignoring critic for now. TODO?
+
+    #below gets populated by the algorithm
     data['mods'] = []
     data['actions'] = []
     data['opponent_action'] = opponent_action
-    # data['predictions'] = []
+    # data['predictions'] = [] #again, ignoring critic so ignoring collection of critic value changes.
 
     board_size = len(observation['board'][0]) #assuming board is square
     for i in range(board_size):
@@ -37,9 +41,11 @@ def generate_saliency(observation, game_step, net, game_tracker, record_json_dir
         for j in range(board_size):
             mod_observation = deepcopy(observation)
 
+            #remove the player from the 'alive' channel as well just to truly remove the data.
             if mod_observation['board'][i][j] >= 10:
                 mod_observation['alive'].remove(mod_observation['board'][i][j])
             
+            #replace this tile's value with a new value.
             if new_val:
                 mod_observation['board'][i][j] = 14 #first number that doesn't have a definition already
             else:
@@ -57,8 +63,8 @@ def generate_saliency(observation, game_step, net, game_tracker, record_json_dir
 
             diffs = [this_probs[k] - actual_probs[k] for k in range(len(this_probs))]
 
-            mod_list.append(deepcopy(diffs))
-            action_list.append(this_action)
+            mod_list.append(deepcopy(diffs)) # Have to deppcopy to avoid pointer hell.
+            action_list.append(this_action) 
             # prediction_list.append(this_terminal_prediction)
 
         data['mods'].append(deepcopy(mod_list))
