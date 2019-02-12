@@ -1,3 +1,39 @@
+# Saliency
+
+Contained in this repo is all code needed to generate saliency data for the [Borealis Viewer](https://github.com/ase-lab/BorealisViewer).
+Written here are instructions for building and running the system.
+
+### Environment Setup
+
+The pommerman game has a giant dependency tree and getting everything working is a pain.
+For that reason, the package manager Conda is recommended and being used here.
+If you know what you're doing and want to use a different/no package manager, you're on your own.
+
+You should also note that Conda and the required dependencies take up around 10GB of space.
+
+1. Download and install the python 3.7 version of Conda from [here.](https://www.anaconda.com/distribution/)
+2. Open the Anaconda Prompt and navigate to this repo's root directory.
+3. In the prompt, run `conda create -n playground`. This creates a seperate environment for this project.
+4. Then run `conda activate playground` to make the anaconda prompt use the new environment. The following instructions should all be run in the prompt.
+3. Run `pip install -U .` (Note the capital U) and let the process run. This will take a while the first time.
+4. Pytorch must be installed seperately and depends on the GPU in your machine.
+    * On nVidia GPUs (or you otherwise have CUDA support), run `conda install pytorch torchvision cudatoolkit=9.0 -c pytorch`.
+    * On AMD GPUs (or if you're not sure you have CUDA support), run `conda install pytorch-cpu torchvision-cpu -c pytorch`.
+5. Finally, the code will show three graphs containg learner meta data that might be interesting to you, but not necessary. While the program will error out if this package is not installed, all data is safe and all other calculations are finished. Installation is thus optional.
+    * To install the required library for the graphs, run `pip install matplotlib`.
+
+### Getting Data
+
+Once your environment is set up, all necessary replay data is put in the out folder in the repo's root.
+Data for each game is contained in a seperate, timestamped folder.
+To have the agent play a game and generate the respective data, do the following:
+1. Open Anaconda prompt and navigate to the repo's root directory.
+2. Make sure you're in the environment you set up earlier with `conda activate playground`.
+3. Run the game with:
+```python NN_Player_Pommerman\pom_discrete_A3C_main.py```
+
+If all went well, some inital setup logs should be printed to the conda prompt, and a game of pommerman will play in a new window after a short bit of loading.
+
 # Playground
 
 > First time? check out our [website](https://www.pommerman.com) for more information,
