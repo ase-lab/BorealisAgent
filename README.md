@@ -34,6 +34,8 @@ To have the agent play a game and generate the respective data, do the following
 
 If all went well, some inital setup logs should be printed to the conda prompt, and a game of pommerman will play in a new window after a short bit of loading.
 
+Below is the original readme for the pommerman repo.
+
 # Playground
 
 > First time? check out our [website](https://www.pommerman.com) for more information,
