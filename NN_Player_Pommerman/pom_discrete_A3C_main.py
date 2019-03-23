@@ -45,6 +45,8 @@ SOFT_SWITCH = False
 LSTM_ENABLED = False  # make it so that a Linear layer can be added easily
 SAVE_VALUE_AND_POLICY_TO_TEXT = False # TODO this is for visualization purposes
 
+RECORD_JSON_DIR = "out/demo/" #TODO change this line to null
+
 SEARCH_AD_HOC_BUDGET = 20 # MAX OF 10 ACTIONS CAN BE ASKED FROM THE EXPERT DURING DRL GAME PLAY
 
 SEARCH_EXPERT_ENABLED = False # This will keep MCTS game-tracker up & running - anythime ready for searching
@@ -59,7 +61,7 @@ GAMMA = 0.999
 IMITATION_LEARNING_DECAY = 0.9999
 
 
-MAX_EP = 1 # how many games
+MAX_EP = 20 # how many games
 CPU_COUNT = 1
 PURE_LEARNING = 1 # 50 % OF THE EPISODES WILL BE IMITATION-FREE
 
@@ -749,7 +751,10 @@ class Worker(mp.Process):
                     self.imitation_continue = False
                     self.g_imitation_p.value = 0
                 ###
-            record_json_dir=f"out/{time.time()}"
+            if not RECORD_JSON_DIR:
+                record_json_dir=f"out/{time.time()}"
+            else:
+                record_json_dir = RECORD_JSON_DIR + f"{time.time()}"
             if not os.path.exists(record_json_dir):
                 os.makedirs(record_json_dir)
 
@@ -775,7 +780,7 @@ class Worker(mp.Process):
 
                 if FLAG_FOR_NATHAN:
                     self.env.render(mode=False, record_json_dir=record_json_dir)
-                    saliency.generate_saliency(s[0], game_step, self.lnet, self.expert_searcher.game_tracker, record_json_dir, nn_action, NN_probs, actions[1], True)
+                    saliency.generate_saliency(s[0], game_step, self.lnet, self.expert_searcher.game_tracker, record_json_dir, nn_action, NN_probs, actions, True)
                     #print(f'taking action {nn_action} propbs were {NN_probs}')
 
                 #TODO Note for Nathan
@@ -870,6 +875,7 @@ class Worker(mp.Process):
                     #buffer_hx, buffer_cx = [], []
 
                     if done:  # done and print information
+                        saliency.write_info(record_json_dir, game_step - 1)
                         self.env.close()
 
                         with self.g_res_lock:

@@ -28,7 +28,7 @@ def generate_saliency(observation, game_step, net, game_tracker, record_json_dir
     #below gets populated by the algorithm
     data['mods'] = []
     data['actions'] = []
-    data['opponent_action'] = opponent_action
+    data['opponent_action'] = opponent_action[1]
     # data['predictions'] = [] #again, ignoring critic so ignoring collection of critic value changes.
 
     board_size = len(observation['board'][0]) #assuming board is square
@@ -75,6 +75,12 @@ def generate_saliency(observation, game_step, net, game_tracker, record_json_dir
         #Uses MyEncoder to properly clean numpy data to types which json will serialize.
         #json.dumps won't serialize numpy data by default
         f.write(json.dumps(data, cls=MyEncoder))
+
+def write_info(record_json_dir, game_step):
+    data = {}
+    data['totalSteps'] = game_step
+    with open(f"{record_json_dir}/info.json", 'w') as f:
+        f.write(json.dumps(data))
 
 #https://fangyh09.github.io/TypeError-Object-of-type-float32-is-not-JSON-serializable/
 class MyEncoder(json.JSONEncoder):
