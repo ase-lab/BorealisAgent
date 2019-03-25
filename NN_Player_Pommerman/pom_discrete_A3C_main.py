@@ -758,6 +758,14 @@ class Worker(mp.Process):
             if not os.path.exists(record_json_dir):
                 os.makedirs(record_json_dir)
 
+            self.opponent_id = None
+            if self.agent_list[1].is_alive is True:
+                self.opponent_id = 1
+            elif self.agent_list[2].is_alive is True:
+                self.opponent_id = 2
+            else:
+                self.opponent_id = 3
+
             while True:
 
                 self.expert_searcher.keep_tracking_game(s[0])
@@ -780,7 +788,8 @@ class Worker(mp.Process):
 
                 if FLAG_FOR_NATHAN:
                     self.env.render(mode=False, record_json_dir=record_json_dir)
-                    saliency.generate_saliency(s[0], game_step, self.lnet, self.expert_searcher.game_tracker, record_json_dir, nn_action, NN_probs, actions, True)
+                    opponent_action = actions[self.opponent_id]
+                    saliency.generate_saliency(s[0], game_step, self.lnet, self.expert_searcher.game_tracker, record_json_dir, nn_action, NN_probs, opponent_action, self.opponent_id, True)
                     #print(f'taking action {nn_action} propbs were {NN_probs}')
 
                 #TODO Note for Nathan

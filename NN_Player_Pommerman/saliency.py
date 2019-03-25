@@ -5,7 +5,7 @@ from pom_discrete_A3C_main import generate_NN_input
 from utils import v_wrap
 from torch import unsqueeze
 
-def generate_saliency(observation, game_step, net, game_tracker, record_json_dir, actual_action, actual_probs, opponent_action, new_val=True):
+def generate_saliency(observation, game_step, net, game_tracker, record_json_dir, actual_action, actual_probs, opponent_action, opponent_id, new_val=True):
     """Generate saliency data for a given observation
 
     observation     -- the observation to be used
@@ -16,6 +16,7 @@ def generate_saliency(observation, game_step, net, game_tracker, record_json_dir
     actual_action   -- action decided from actor distribution by the unmodified observation
     actual_probs    -- action distribution produced by the unmodified observation
     opponent_action -- the action the opponent took at this time step
+    opponent_id     -- the id of the opponent
     new_val         -- if false uses passage/wall modifications, otherwise uses previously unknown value modifications
     """
 
@@ -28,7 +29,8 @@ def generate_saliency(observation, game_step, net, game_tracker, record_json_dir
     #below gets populated by the algorithm
     data['mods'] = []
     data['actions'] = []
-    data['opponent_action'] = opponent_action[1]
+    data['opponent_action'] = opponent_action
+    data['opponent_id'] = opponent_id
     # data['predictions'] = [] #again, ignoring critic so ignoring collection of critic value changes.
 
     board_size = len(observation['board'][0]) #assuming board is square
