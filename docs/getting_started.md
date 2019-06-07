@@ -4,6 +4,11 @@
 * [Docker](https://www.docker.com/) (only needed for `DockerAgent`)
 * [virtualenv](https://virtualenv.pypa.io/en/stable/) (optional, for isolated Python environment)
 ## Installation
+* Clone the repository
+```
+$ git clone https://github.com/MultiAgentLearning/playground ~/playground
+```
+## Pip
 * **OPTIONAL**: Setup an isolated virtual Python environment by running the following commands
 ```
 $ virtualenv ~/venv
@@ -13,16 +18,23 @@ in this virtual environment folder only.
 ```
 source ~/venv/bin/activate
 ```
-* Clone the repository  
-```
-$ git clone https://github.com/MultiAgentLearning/playground ~/playground
-```  
 * Install the `pommerman` package. This needs to be done every time the code is updated to get the
-latest modules  
+latest modules
 ```
 $ cd ~/playground
 $ pip install -U .
-```  
+```
+## Conda
+* Install the `pommerman` environment.
+```
+$ cd ~/playground
+$ conda env create -f env.yml
+$ conda activate pommerman
+```
+* To update the environment
+```
+$ conda env update -f env.yml --prune
+```
 ## Examples
 ### Free-For-All
 The code below runs a sample Free-For-All game with two **SimpleAgent**'s and two **RandomAgent**'s on the board.  
@@ -121,6 +133,23 @@ agent_list = [
     agents.PlayerAgent(agent_control="wasd"), # W,A,S,D = Move, E = Bomb
 ]
 ```
+
+## NeurIPS 2018 Docker Agents
+
+To test your agent against 2018 NeurIPS competition agents you can download an agent using `docker pull`...
+
+```
+docker pull multiagentlearning/hakozakijunctions
+```
+
+The following agents are available: `multiagentlearning/hakozakijunctions`, `multiagentlearning/dypm.1`, `multiagentlearning/dypm.2`, `multiagentlearning/navocado`, `multiagentlearning/skynet955`, `multiagentlearning/eisenach`
+
+To use an agent once you have pulled it from docker hub use a command like the following.
+
+```
+pom_battle --agents=MyAgent,docker::multiagentlearning/navocado,player::arrows,docker::multiagentlearning/eisenach --config=PommeRadioCompetition-v2
+```
+
 ## Useful information
 1. Two agents cannot move to the same cell. They will bounce back to their prior places if they try. The same applies to bombs. If an agent and a bomb both try to move to the same space, then the agent will succeed but the bomb will bounce back.
 2. If an agent with the can_kick ability moves to a cell with a bomb, then the bomb is kicked in the direction from which the agent came. The ensuing motion will persist until the bomb hits a wall, another agent, or the edge of the grid. 

@@ -162,6 +162,19 @@ class Net(nn.Module):
 
         return logits, values, hx, cx, end_predict
 
+    # NATHAN_VALUE_ADDED
+    def critic_value(self, s, game_step, game_tracker):
+        # game_step can be extrapolated by just summing the future state depth and current time_step
+        # game_tracker object keeps track of some of the features that are not provided by observation to the agent,
+        # from the main part, you can see it is defined and used as self.expert_searcher.game_tracker
+
+        self.eval()
+        filtered_state = generate_NN_input(10, s[0], game_step, game_tracker)
+        m_filtered_state = v_wrap(filtered_state).unsqueeze(0)
+        _, value, _, _, _ = self.forward(m_filtered_state)
+
+        return value.detach().numpy()[0][0] # requested state-value estimate that captures the long term cumulative reward
+
     def choose_action(self, s, hx=None, cx=None, value_viz_buffer=None, policy_viz_buffer=None):
         #print(s)
         # print(f"set to eval {s.shape}")
@@ -790,6 +803,7 @@ class Worker(mp.Process):
                     self.env.render(mode=False, record_json_dir=record_json_dir)
                     opponent_action = actions[self.opponent_id]
                     saliency.generate_saliency(s[0], game_step, self.lnet, self.expert_searcher.game_tracker, record_json_dir, nn_action, NN_probs, opponent_action, self.opponent_id, True)
+                    print(f'state value is {self.lnet.critic_value(s, game_step, self.expert_searcher.game_tracker)}')
                     #print(f'taking action {nn_action} propbs were {NN_probs}')
 
                 #TODO Note for Nathan

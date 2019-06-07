@@ -27,6 +27,13 @@ class Bomber(object):
                 for id_ in range(4)
                 if id_ != agent_id
             ]
+        elif self._game_type == constants.GameType.OneVsOne:
+            self.teammate = constants.Item.AgentDummy
+            self.enemies = [
+                getattr(constants.Item, 'Agent%d' % id_)
+                for id_ in range(2)
+                if id_ != agent_id
+            ]
         else:
             teammate_id = (agent_id + 2) % 4
             self.teammate = getattr(constants.Item, 'Agent%d' % teammate_id)
@@ -40,7 +47,7 @@ class Bomber(object):
     def maybe_lay_bomb(self):
         if self.ammo > 0:
             self.ammo -= 1
-            return Bomb(self, self.position, constants.DEFAULT_BOMB_LIFE,
+            return Bomb(self, self.position, constants.DEFAULT_BOMB_LIFE + 1,
                         self.blast_strength)
         return None
 

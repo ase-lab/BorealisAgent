@@ -11,7 +11,7 @@ from time import strftime
 
 from gym.utils import reraise
 import numpy as np
-from scipy.misc import imresize as resize
+from PIL import Image
 
 try:
     import pyglet
@@ -81,7 +81,7 @@ class Viewer(object):
 
     def save(self, path):
         now = datetime.now()
-        filename = now.strftime('%m-%d-%y_%-H-%M-%S_') + str(
+        filename = now.strftime('%m-%d-%y_%H-%M-%S_') + str(
             self._step) + '.png'
         path = os.path.join(path, filename)
         pyglet.image.get_buffer_manager().get_color_buffer().save(path)
@@ -156,15 +156,13 @@ class PixelViewer(Viewer):
                                    self._is_partially_observable,
                                    self._agent_view_size)
 
-        all_img = resize(
-            rgb_array[0],
-            (board_size * human_factor, board_size * human_factor),
-            interp='nearest')
+        all_img = np.array(Image.fromarray(rgb_array[0].astype(np.uint8)).resize(
+            (board_size * human_factor, board_size * human_factor), resample=Image.NEAREST))
         other_imgs = [
-            resize(
-                frame, (int(board_size * human_factor / 4),
-                        int(board_size * human_factor / 4)),
-                interp='nearest') for frame in rgb_array[1:]
+            np.array(Image.fromarray(frame.astype(np.uint8)).resize(
+                (int(board_size * human_factor / len(self._agents)),
+                 int(board_size * human_factor / len(self._agents))),
+                resample=Image.NEAREST)) for frame in rgb_array[1:]
         ]
 
         other_imgs = np.concatenate(other_imgs, 0)
@@ -183,7 +181,7 @@ class PixelViewer(Viewer):
             for col in range(board_size):
                 value = board[row][col]
                 if utility.position_is_agent(board, (row, col)):
-                    num_agent = value - num_items
+                    num_agent = value - num_items + 4
                     if agents[num_agent].is_alive:
                         all_frame[row][col] = constants.AGENT_COLORS[num_agent]
                 else:
@@ -372,9 +370,20 @@ class PommeViewer(Viewer):
         dead.width = image_size
         dead.height = image_size
         sprites = []
+        
+        if self._game_type is constants.GameType.FFA or self._game_type is constants.GameType.OneVsOne:
+            agents = self._agents
+        else:
+            agents = [self._agents[i] for i in [0,2,1,3]]
 
-        for agent in self._agents:
-            x = self.board_right(x_offset=-3) - (4 - agent.agent_id) * (
+        for index, agent in enumerate(agents):
+            # weird math to make sure the alignment
+            # is correct. 'image_size + spacing' is an offset
+            # that includes padding (spacing) for each image. 
+            # '4 - index' is used to space each agent out based
+            # on where they are in the array based off of their
+            # index. 
+            x = self.board_right() - (len(agents) - index) * (
                 image_size + spacing)
             y = board_top
             agent_image = self._resource_manager.agent_image(agent.agent_id)
@@ -399,7 +408,7 @@ class PommeViewer(Viewer):
         return constants.BORDER_SIZE + (
             self._board_size * self._tile_size) + y_offset
 
-    def board_right(self, x_offset):
+    def board_right(self, x_offset=0):
         return constants.BORDER_SIZE + (
             self._board_size * self._tile_size) + x_offset
 
@@ -420,7 +429,7 @@ class ResourceManager(object):
         self._fog_value = self._get_fog_index_value()
         self._is_team = True
 
-        if game_type == constants.GameType.FFA:
+        if game_type == constants.GameType.FFA or game_type == constants.GameType.OneVsOne:
             self._is_team = False
 
     @staticmethod
@@ -469,6 +478,9 @@ class ResourceManager(object):
         return self.images[value]['image']
 
     def agent_image(self, agent_id):
+        if self._is_team:
+            return self.images[agent_id + 24]['image']
+
         return self.images[agent_id + 15]['image']
 
     def dead_marker(self):

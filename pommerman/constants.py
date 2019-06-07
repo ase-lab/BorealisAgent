@@ -9,10 +9,14 @@ BOARD_SIZE = 11
 NUM_RIGID = 36
 NUM_WOOD = 36
 NUM_ITEMS = 20
+BOARD_SIZE_ONE_VS_ONE = 8
+NUM_RIGID_ONE_VS_ONE = 16
+NUM_WOOD_ONE_VS_ONE = 16
+NUM_ITEMS_ONE_VS_ONE = 10
 AGENT_VIEW_SIZE = 4
 HUMAN_FACTOR = 32
 DEFAULT_BLAST_STRENGTH = 2
-DEFAULT_BOMB_LIFE = 10
+DEFAULT_BOMB_LIFE = 9
 # color for each of the 4 agents
 AGENT_COLORS = [[231, 76, 60], [46, 139, 87], [65, 105, 225], [238, 130, 238]]
 # color for each of the items.
@@ -34,6 +38,8 @@ FILE_NAMES = [
     'AgentDummy-No-Background', 'Agent0-No-Background', 'Agent1-No-Background',
     'Agent2-No-Background', 'Agent3-No-Background', 'X-No-Background',
     'Agent0-Team', 'Agent1-Team', 'Agent2-Team', 'Agent3-Team',
+    'Agent0-Team-No-Background', 'Agent1-Team-No-Background', 
+    'Agent2-Team-No-Background', 'Agent3-Team-No-Background',
 ]
 IMAGES_DICT = {
     num: {
@@ -101,10 +107,12 @@ class GameType(Enum):
       and together take on two other similarly matched agents.
     TeamRadio: 2v2. Submit two agents; they are matched up against two other
       agents. Each team passes discrete communications to each other.
+    OneVsOne: 1v1. A research environment for dueling between two agents
     """
     FFA = 1
     Team = 2
     TeamRadio = 3
+    OneVsOne = 4
 
 
 class Action(Enum):

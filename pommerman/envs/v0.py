@@ -126,7 +126,7 @@ class Pomme(gym.Env):
 
     def make_board(self):
         self._board = utility.make_board(self._board_size, self._num_rigid,
-                                         self._num_wood)
+                                         self._num_wood, len(self._agents))
 
     def make_items(self):
         self._items = utility.make_items(self._board, self._num_items)
@@ -179,7 +179,6 @@ class Pomme(gym.Env):
         return self.get_observations()
 
     def seed(self, seed=None):
-        gym.spaces.prng.seed(seed)
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
