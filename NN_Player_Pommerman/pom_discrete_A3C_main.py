@@ -771,6 +771,8 @@ class Worker(mp.Process):
             if not os.path.exists(record_json_dir):
                 os.makedirs(record_json_dir)
 
+            times = []
+
             self.opponent_id = None
             if self.agent_list[1].is_alive is True:
                 self.opponent_id = 1
@@ -802,9 +804,9 @@ class Worker(mp.Process):
                 if FLAG_FOR_NATHAN:
                     self.env.render(mode=False, record_json_dir=record_json_dir)
                     opponent_action = actions[self.opponent_id]
-                    saliency.generate_saliency(s[0], game_step, self.lnet, self.expert_searcher.game_tracker, record_json_dir, nn_action, NN_probs, opponent_action, self.opponent_id, True)
-                    print(f'state value is {self.lnet.critic_value(s, game_step, self.expert_searcher.game_tracker)}')
-                    #print(f'taking action {nn_action} propbs were {NN_probs}')
+
+                    saliency.generate_saliency(s[0], game_step, self.lnet, self.expert_searcher.game_tracker, record_json_dir, nn_action, NN_probs, terminal_prediction.detach().numpy()[0][0], opponent_action, self.opponent_id, True)
+
 
                 #TODO Note for Nathan
                 #Original state the agent gets from Pommerman API is s[0]
